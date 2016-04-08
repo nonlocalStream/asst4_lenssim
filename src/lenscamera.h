@@ -23,6 +23,7 @@ public:
   double ior;
   double aperture;
 private:
+  bool test(const Ray& r, double& t1, double& t2) const;
   bool intersect(const Ray &r, Vector3D *hit_p) const;
   bool refract(Ray& r, const Vector3D& hit_p, const double& prev_ior) const;
 };

@@ -20,9 +20,21 @@ BBox Triangle::get_bbox() const {
 
 bool Triangle::intersect(const Ray& r) const {
   
-  // TODO Part 1, task 3: implement ray-triangle intersection
+  // TODO Part 1, task 3: implement ray-triangle intersection 
   Vector3D p1(mesh->positions[v1]), p2(mesh->positions[v2]), p3(mesh->positions[v3]);
-
+  Vector3D e1 = p2-p1;
+  Vector3D e2 = p3-p1;
+  Vector3D s = r.o-p1;
+  Vector3D s1 = cross(r.d, e2);
+  Vector3D s2 = cross(s, e1);
+  double t = dot(s2, e2)/dot(s1, e1);
+  double b2 = dot(s1, s)/dot(s1, e1);
+  double b3 = dot(s2, r.d)/dot(s1, e1);
+  if (b2 < 0.f || b3 < 0.f || b2+b3 > 1.f) return false;
+  if ((r.min_t <= t) && (r.max_t >= t)) {
+    r.max_t = t;
+    return true;
+  }
   return false;
 }
 
@@ -33,7 +45,23 @@ bool Triangle::intersect(const Ray& r, Intersection *isect) const {
   // place, the Intersection data should be updated accordingly
   Vector3D p1(mesh->positions[v1]), p2(mesh->positions[v2]), p3(mesh->positions[v3]);
   Vector3D n1(mesh->normals[v1]), n2(mesh->normals[v2]), n3(mesh->normals[v3]);
-  
+  Vector3D e1 = p2-p1;
+  Vector3D e2 = p3-p1;
+  Vector3D s = r.o-p1;
+  Vector3D s1 = cross(r.d, e2);
+  Vector3D s2 = cross(s, e1);
+  double t = dot(s2, e2)/dot(s1, e1);
+  double b2 = dot(s1, s)/dot(s1, e1);
+  double b3 = dot(s2, r.d)/dot(s1, e1);
+  if (b2 < 0.f || b3 < 0.f || b2+b3 > 1.f) return false;
+  if ((r.min_t <= t) && (r.max_t >= t)) {
+    r.max_t = t;
+    isect->t = t;
+    isect->n = (1-b2-b3)*n1+b2*n2+b3*n3;
+    isect->primitive = this;
+    isect->bsdf = get_bsdf();
+    return true;
+  }
   return false;
 }
 

@@ -136,6 +136,7 @@ class BVHAccel : public Aggregate {
   mutable unsigned long long total_rays, total_isects;
  private:
   BVHNode* root; ///< root node of the BVH
+  int largest_axis(const Vector3D extent);
   BVHNode *construct_bvh(const std::vector<Primitive*>& prims, size_t max_leaf_size);
 };
 

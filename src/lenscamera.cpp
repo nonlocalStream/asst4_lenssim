@@ -37,27 +37,105 @@ static const double scale = .001;
 
 bool LensElement::pass_through(Ray &r, double &prev_ior) const {
   // Part 1 Task 1: Implement this. It takes r and passes it through this lens element.
-  
+  Vector3D *hit_p;
+  if (intersect(r, hit_p)) {
+    if (abs(hit_p->z) <= aperture/2.0) {
+      if (radius == 0) {
+        prev_ior = ior;
+        return true;
+      } 
+      if (refract(r, *hit_p, prev_ior)) {
+        prev_ior = ior;
+        return true;
+      }
+    }
+  }
+  return false;
+}
 
+bool LensElement::test(const Ray& r, double& t1, double& t2) const {
+
+  // TODO Part 1, task 4:
+  // Implement ray - sphere intersection test.
+  // Return true if there are intersections and writing the
+  // smaller of the two intersection times in t1 and the larger in t2.
+  double a = dot(r.d, r.d);
+  double b = 2*dot(r.o-center, r.d);
+  double c = dot(r.o-center, r.o-center) - pow(radius,2);
+  if (pow(b,2) - 4*a*c < 0) return false;
+  if (a == 0) return false;
+  double delta = pow(b,2) - 4*a*c;
+  if (delta < 0) {
+    delta = 0;
+  }
+  t1 = (-b-sqrt(delta))/2/a;
+  t2 = (-b+sqrt(delta))/2/a;
   return true;
 }
+
 bool LensElement::intersect(const Ray &r, Vector3D *hit_p) const {
   // Part 1 Task 1: Implement this. It intersects r with this spherical lens elemnent 
   // (or aperture diaphragm). You'll want to reuse some sphere intersect code.
-
-
-  return true;
-  
+  if (radius == 0.f) { //is aperture element
+    if (r.d.z != 0.f) {
+      double t = (0.f-r.o.z)/r.d.z;
+      *hit_p= r.o+t*r.d;  
+      return true;
+    }
+    return false;
+  }
+  // if normal lens element
+  double t1, t2, t;
+  if (test(r, t1, t2)) {
+      if ((t1>=0) && (t1 >= r.min_t) && (t1 <= r.max_t)) {
+        r.max_t = t1; 
+        t = t1; 
+      } else if ((t2>=0) && (t2 >= r.min_t) && (t2 <= r.max_t)) {
+        r.max_t = t2; 
+        t = t2; 
+      } else {
+        return false;
+      } 
+      *hit_p= r.o+t*r.d;  
+      return true;
+  }
+  return false;
 }
 bool LensElement::refract(Ray& r, const Vector3D& hit_p, const double& prev_ior) const {
   // Part 1 Task 1: Implement this. It refracts the Ray r with this lens element or 
   // does nothing at the aperture element.
   // You'll want to consult your refract function from the previous assignment.
+  //  \  i  | 
+  //     \  | n
+  //       \|  n1=prev_ior
+  //  ----------
+  //        |\ n2=ior
+  //        | \t
+  // Vector form of shell's law:
+  // http://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf
+  Vector3D n = (hit_p-center).unit();
+  Vector3D i = r.d.unit();
+  double n1,n2;
+  if (r.d.z < 0) {
+    n1 = prev_ior;
+    n2 = ior;
+  } else {
+    n2 = prev_ior;
+    n1 = ior;
+  }
+  double cos_theta_i = dot(n,i);
+  double sin2theta_i = 1-pow(cos_theta_i,2);
+  if (n1*sqrt(sin2theta_i) <= n2) {
+    double sin2theta_t = pow(n1/n2,2)*sin2theta_i;
+    Vector3D t = (n1/n2)*i+
+                 (n1/n2*cos_theta_i-
+                  sqrt(1-sin2theta_t))*n;
 
-
-
-  return true;
-
+    r.d = t.unit();
+    r.o = hit_p;
+    return true;
+  }
+  return false;
 }
 
 
@@ -139,18 +217,26 @@ void Lens::set_focus_params() {
 
 bool Lens::trace(Ray &r, std::vector<Vector3D> *trace) const {
   // Part 1 Task 1: Implement this. It traces a ray from the sensor out into the world.
-
-
-
+  /*double *prev_ior;
+  *prev_ior = 1.0;
+  for (int i=0; i<elts.size(); i++) {
+    LensElement elt = elts[i];
+    if (!elt.pass_through(r, *prev_ior)) return false;
+    trace->push_back(r.o);        
+  }*/
   return true;
 }
 
 bool Lens::trace_backwards(Ray &r, std::vector<Vector3D> *trace) const {
   // Part 1 Task 1: Implement this. It traces a ray from the world backwards through 
   // the lens towards the sensor.
-
-
-
+  double *prev_ior;
+  for (int i=elts.size()-1; i>=0; i--) {
+    LensElement elt = elts[i];
+    *prev_ior = (i>0) ? elts[i-1].ior: 1.0;
+    //if (!elt.pass_through(r, *prev_ior)) return false;
+    trace->push_back(Vector3D(0,0,0));//r.o);        
+  }
   return true;
 }
 
