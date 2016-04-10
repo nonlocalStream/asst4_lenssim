@@ -37,7 +37,7 @@
       <extra>
         <technique profile="CGL">
           <area>
-            <color sid="color">5 5 5</color>
+            <color sid="color">25 25 25</color>
           </area>
         </technique>
       </extra>
@@ -572,15 +572,15 @@
   <library_visual_scenes>
     <visual_scene id="Scene" name="Scene">
       <node id="Camera" name="Camera" type="NODE">
-        <matrix sid="transform">-1 0 0 0 0 0 1 3 0 1 0 0 0 0 0 1</matrix>
+        <matrix sid="transform">-0.2 0.0 0.0 0.0 0.0 0.0 0.2 0.6 0.0 0.2 0.0 0.0 0.0 0.0 0.0 1.0 </matrix>
         <instance_camera url="#Camera-camera"/>
       </node>
       <node id="Area" name="Area" type="NODE">
-        <matrix sid="transform">-0.6 -1.20797e-7 0 -2.62268e-8 9.05975e-8 -0.8 0 0.004315853 0 0 1 1.49 0 0 0 1</matrix>
+        <matrix sid="transform">-0.12 -2.41594e-08 0.0 -5.24536e-09 1.81195e-08 -0.16 0.0 0.0008631706 0.0 0.0 0.2 0.298 0.0 0.0 0.0 1.0 </matrix>
         <instance_light url="#Area-light"/>
       </node>
       <node id="ceiling" name="ceiling" type="NODE">
-        <matrix sid="transform">-1 2.69452e-14 1.50996e-7 -2.62268e-8 1.50996e-7 1.62921e-7 1 0 2.34488e-15 1 -1.62921e-7 0 0 0 0 1</matrix>
+        <matrix sid="transform">-0.2 5.38904e-15 3.01992e-08 -5.24536e-09 3.01992e-08 3.25842e-08 0.2 0.0 4.68976e-16 0.2 -3.25842e-08 0.0 0.0 0.0 0.0 1.0 </matrix>
         <instance_geometry url="#ceiling-mesh">
           <bind_material>
             <technique_common>
@@ -590,7 +590,7 @@
         </instance_geometry>
       </node>
       <node id="light" name="light" type="NODE">
-        <matrix sid="transform">-1 2.69452e-14 1.50996e-7 -2.62268e-8 1.50996e-7 1.62921e-7 1 0.004315853 2.34488e-15 1 -1.62921e-7 0 0 0 0 1</matrix>
+        <matrix sid="transform">-0.2 5.38904e-15 3.01992e-08 -5.24536e-09 3.01992e-08 3.25842e-08 0.2 0.0008631706 4.68976e-16 0.2 -3.25842e-08 0.0 0.0 0.0 0.0 1.0 </matrix>
         <instance_geometry url="#light-mesh">
           <bind_material>
             <technique_common>
@@ -600,7 +600,7 @@
         </instance_geometry>
       </node>
       <node id="floor" name="floor" type="NODE">
-        <matrix sid="transform">-1 2.69452e-14 1.50996e-7 -2.62268e-8 1.50996e-7 1.62921e-7 1 0 2.34488e-15 1 -1.62921e-7 0 0 0 0 1</matrix>
+        <matrix sid="transform">-0.2 5.38904e-15 3.01992e-08 -5.24536e-09 3.01992e-08 3.25842e-08 0.2 0.0 4.68976e-16 0.2 -3.25842e-08 0.0 0.0 0.0 0.0 1.0 </matrix>
         <instance_geometry url="#floor-mesh">
           <bind_material>
             <technique_common>
@@ -610,7 +610,7 @@
         </instance_geometry>
       </node>
       <node id="leftWall" name="leftWall" type="NODE">
-        <matrix sid="transform">-1 2.69452e-14 1.50996e-7 -2.62268e-8 1.50996e-7 1.62921e-7 1 0 2.34488e-15 1 -1.62921e-7 0 0 0 0 1</matrix>
+        <matrix sid="transform">-0.2 5.38904e-15 3.01992e-08 -5.24536e-09 3.01992e-08 3.25842e-08 0.2 0.0 4.68976e-16 0.2 -3.25842e-08 0.0 0.0 0.0 0.0 1.0 </matrix>
         <instance_geometry url="#leftWall-mesh">
           <bind_material>
             <technique_common>
@@ -620,7 +620,7 @@
         </instance_geometry>
       </node>
       <node id="rightWall" name="rightWall" type="NODE">
-        <matrix sid="transform">-1 2.69452e-14 1.50996e-7 -2.62268e-8 1.50996e-7 1.62921e-7 1 0 2.34488e-15 1 -1.62921e-7 0 0 0 0 1</matrix>
+        <matrix sid="transform">-0.2 5.38904e-15 3.01992e-08 -5.24536e-09 3.01992e-08 3.25842e-08 0.2 0.0 4.68976e-16 0.2 -3.25842e-08 0.0 0.0 0.0 0.0 1.0 </matrix>
         <instance_geometry url="#rightWall-mesh">
           <bind_material>
             <technique_common>
@@ -630,7 +630,7 @@
         </instance_geometry>
       </node>
       <node id="backWall" name="backWall" type="NODE">
-        <matrix sid="transform">-1 2.69452e-14 1.50996e-7 -2.62268e-8 1.50996e-7 1.62921e-7 1 0.004315853 2.34488e-15 1 -1.62921e-7 0 0 0 0 1</matrix>
+        <matrix sid="transform">-0.2 5.38904e-15 3.01992e-08 -5.24536e-09 3.01992e-08 3.25842e-08 0.2 0.0008631706 4.68976e-16 0.2 -3.25842e-08 0.0 0.0 0.0 0.0 1.0 </matrix>
         <instance_geometry url="#backWall-mesh">
           <bind_material>
             <technique_common>
@@ -640,7 +640,7 @@
         </instance_geometry>
       </node>
       <node id="coil" name="coil" type="NODE">
-        <matrix sid="transform">-1 -1.50996e-7 0 -2.62268e-8 1.50996e-7 -1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <matrix sid="transform">-0.2 -3.01992e-08 0.0 -5.24536e-09 3.01992e-08 -0.2 0.0 0.0 0.0 0.0 0.2 0.0 0.0 0.0 0.0 1.0 </matrix>
         <instance_geometry url="#coil-mesh">
           <bind_material>
             <technique_common>
