@@ -37,9 +37,9 @@ static const double scale = .001;
 
 bool LensElement::pass_through(Ray &r, double &prev_ior) const {
   // Part 1 Task 1: Implement this. It takes r and passes it through this lens element.
-  Vector3D *hit_p;
+  Vector3D *hit_p = new Vector3D;
   if (intersect(r, hit_p)) {
-    if (abs(hit_p->z) <= aperture/2.0) {
+    if (pow(hit_p->x,2)+pow(hit_p->y,2)<=pow(aperture/2.0,2)) {
       if (radius == 0) {
         prev_ior = ior;
         return true;
@@ -60,8 +60,9 @@ bool LensElement::test(const Ray& r, double& t1, double& t2) const {
   // Return true if there are intersections and writing the
   // smaller of the two intersection times in t1 and the larger in t2.
   double a = dot(r.d, r.d);
-  double b = 2*dot(r.o-center, r.d);
-  double c = dot(r.o-center, r.o-center) - pow(radius,2);
+  Vector3D cen = Vector3D(0,0,center);
+  double b = 2*dot(r.o-cen, r.d);
+  double c = dot(r.o-cen, r.o-cen) - pow(radius,2);
   if (pow(b,2) - 4*a*c < 0) return false;
   if (a == 0) return false;
   double delta = pow(b,2) - 4*a*c;
@@ -87,11 +88,13 @@ bool LensElement::intersect(const Ray &r, Vector3D *hit_p) const {
   // if normal lens element
   double t1, t2, t;
   if (test(r, t1, t2)) {
-      if ((t1>=0) && (t1 >= r.min_t) && (t1 <= r.max_t)) {
-        r.max_t = t1; 
+      Vector3D hit_p1 = r.o+t1*r.d;
+      Vector3D hit_p2 = r.o+t2*r.d;
+      bool same_side1 = ((center-hit_p1.z) * radius >= 0);
+      bool same_side2 = ((center-hit_p2.z) * radius >= 0);
+      if ((t1>=0) && (t1 >= r.min_t) && (t1 <= r.max_t) && same_side1) {
         t = t1; 
-      } else if ((t2>=0) && (t2 >= r.min_t) && (t2 <= r.max_t)) {
-        r.max_t = t2; 
+      } else if ((t2>=0) && (t2 >= r.min_t) && (t2 <= r.max_t) && same_side2) {
         t = t2; 
       } else {
         return false;
@@ -105,7 +108,7 @@ bool LensElement::refract(Ray& r, const Vector3D& hit_p, const double& prev_ior)
   // Part 1 Task 1: Implement this. It refracts the Ray r with this lens element or 
   // does nothing at the aperture element.
   // You'll want to consult your refract function from the previous assignment.
-  //  \  i  | 
+  //  \  i /| 
   //     \  | n
   //       \|  n1=prev_ior
   //  ----------
@@ -113,7 +116,10 @@ bool LensElement::refract(Ray& r, const Vector3D& hit_p, const double& prev_ior)
   //        | \t
   // Vector form of shell's law:
   // http://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf
-  Vector3D n = (hit_p-center).unit();
+  Vector3D n = (hit_p-Vector3D(0,0,center)).unit();
+  if (r.d.z * radius < 0) {
+      n = (-1) * n;
+  }
   Vector3D i = r.d.unit();
   double n1,n2;
   if (r.d.z < 0) {
@@ -123,7 +129,7 @@ bool LensElement::refract(Ray& r, const Vector3D& hit_p, const double& prev_ior)
     n2 = prev_ior;
     n1 = ior;
   }
-  double cos_theta_i = dot(n,i);
+  double cos_theta_i = -dot(n,i);
   double sin2theta_i = 1-pow(cos_theta_i,2);
   if (n1*sqrt(sin2theta_i) <= n2) {
     double sin2theta_t = pow(n1/n2,2)*sin2theta_i;
@@ -217,25 +223,25 @@ void Lens::set_focus_params() {
 
 bool Lens::trace(Ray &r, std::vector<Vector3D> *trace) const {
   // Part 1 Task 1: Implement this. It traces a ray from the sensor out into the world.
-  /*double *prev_ior;
-  *prev_ior = 1.0;
+  double prev_ior;
+  prev_ior = 1.0;
   for (int i=0; i<elts.size(); i++) {
     LensElement elt = elts[i];
-    if (!elt.pass_through(r, *prev_ior)) return false;
+    if (!elt.pass_through(r, prev_ior)) return false;
     trace->push_back(r.o);        
-  }*/
-  return true;
+   }
+   return true;
 }
 
 bool Lens::trace_backwards(Ray &r, std::vector<Vector3D> *trace) const {
   // Part 1 Task 1: Implement this. It traces a ray from the world backwards through 
   // the lens towards the sensor.
-  double *prev_ior;
+  double prev_ior;
   for (int i=elts.size()-1; i>=0; i--) {
     LensElement elt = elts[i];
-    *prev_ior = (i>0) ? elts[i-1].ior: 1.0;
-    //if (!elt.pass_through(r, *prev_ior)) return false;
-    trace->push_back(Vector3D(0,0,0));//r.o);        
+    prev_ior = (i>0) ? elts[i-1].ior: 1.0;
+    if (!elt.pass_through(r, prev_ior)) return false;
+    trace->push_back(r.o);        
   }
   return true;
 }
