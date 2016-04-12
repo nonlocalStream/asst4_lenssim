@@ -203,16 +203,53 @@ void Lens::parse_lens_file(std::string filename) {
        
 }
 
-
 void Lens::set_focus_params() {
 
   // Part 1 Task 2: Implement this. 
   // After this function is called, the three variables
   // infinity_focus, near_focus, and focal_length
   // should be set correctly.
+  /* ==== infinit_focus ========= */
+  double epsilon = ap_radius/150.0;
+  LensElement front_lens = elts.back();
+  double front_lens_z = front_lens.center-front_lens.radius;
+  double t_inf, t_near, t_focal;
+  Ray r = Ray(Vector3D(epsilon, 0, front_lens_z-10), Vector3D(0,0,1));
+  vector<Vector3D> trace;
+  trace.push_back(r.o);
+  if (trace_backwards(r, &trace)) {
+      if ((r.o.x !=0) && (r.d.x == 0)) {
+         t_inf = INF_D;
+         infinity_focus = INF_D;
+      } else {
+         t_inf = -r.o.x/r.d.x;
+         infinity_focus = r.o.z + t_inf*r.d.z;
+      }
+  } else {
+      infinity_focus = -42;
+  }
+  /* ==== focal_focus ========= */
+  t_focal = (epsilon - r.o.x)/r.d.x;
+  focal_length = abs(t_inf - t_focal);
 
-
-
+  /* ==== near_focus ========= */
+  //Vector3D nearest_o = Vector3D(0,0,-5*focal_length);
+  Vector3D nearest_o = Vector3D(0,0,elts.back().center - elts.back().radius - (1 + log(focal_length))*focal_length);
+  r = Ray(nearest_o, (Vector3D(epsilon, 0, front_lens_z)-nearest_o).unit());
+  trace.clear();
+  trace.push_back(r.o);
+  if (trace_backwards(r, &trace)) {
+       if ((r.o.x !=0) && (r.d.x == 0)) {
+          t_near = INF_D;
+          near_focus = INF_D;
+       } else {
+          t_near = -r.o.x/r.d.x;
+          near_focus = r.o.z + t_near*r.d.z;
+       }
+   } else {
+       near_focus = -42;
+   }
+ 
   cout << "[Lens] Infinity focus depth is " << infinity_focus << endl;
   cout << "[Lens] Close focus depth is " << near_focus << endl;
   cout << "[Lens] True focal length is " << focal_length << endl;
@@ -250,7 +287,22 @@ float Lens::focus_depth(float d) const {
 
   // Part 1 Task 2: Implement this. Should find the conjugate of a ray
   // starting from the sensor at depth d.
-
+  double epsilon = ap_radius/150.0;
+  LensElement back_lens = elts[0];
+  double back_lens_z = back_lens.center-back_lens.radius;
+  double t;
+  Vector3D o = Vector3D(0,0,d);
+  Ray r = Ray(Vector3D(0,0,d), Vector3D(epsilon, 0, back_lens_z-d).unit());
+  vector<Vector3D> trace;
+  trace.push_back(r.o);
+  if (this->trace(r, &trace)) {
+      if ((r.o.x !=0) && (r.d.x == 0)) {
+         return INF_D;
+      } else {
+         t = -r.o.x/r.d.x;
+         return r.o.z + t*r.d.z;
+      }
+  }
   return 0;
 }
 
@@ -258,9 +310,14 @@ Vector3D Lens::back_lens_sample() const {
 
   // Part 1 Task 2: Implement this. Should return a point randomly sampled
   // on the back element of the lens (the element closest to the sensor)
-
-  return Vector3D();
-
+  double radius = elts[0].aperture * 0.5;
+  double z = elts[0].center-elts[0].radius;
+  while (1) {
+    double x = random_uniform()*2*radius - radius;
+    double y = random_uniform()*2*radius - radius;
+    if (x*x+y*y<=radius*radius)
+      return Vector3D(x,y,z);
+  }
 }
 
 
@@ -286,9 +343,19 @@ Ray LensCamera::generate_ray(double x, double y) const {
     // Part 1 Task 2: Implement this. It generates a ray from sensor pixel (x,y)
     // pointing toward the back element of the lens (use back_lens_sample) and traces
     // it through the Lens (using your "trace" function)
-
-
-
+    double film_d = sqrt(24*24+36*36);
+    double screen_d = sqrt(screenW*screenW + screenH*screenH);
+    double film_w = film_d * screenW / screen_d;
+    double film_h = film_d * screenH / screen_d;
+    double sensor_depth = curr_lens().sensor_depth;
+    Vector3D sensor_point(-(x-0.5)*film_w, -(y-0.5)*film_h, sensor_depth);
+    Vector3D dir = (curr_lens().back_lens_sample() - sensor_point).unit();
+    Ray r = Ray(sensor_point,dir);
+    vector<Vector3D> trace;
+    trace.push_back(r.o);
+    if (!curr_lens().trace(r, &trace)) {
+      return Ray(sensor_point,Vector3D(0,0,1));
+    }
 
     /***** end of your code ******/
 

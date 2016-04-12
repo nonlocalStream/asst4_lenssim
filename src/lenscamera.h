@@ -60,6 +60,7 @@ public:
   void stop_down(float ratio);
 
   Lens& curr_lens() { return lenses[lens_ind]; }
+  const Lens& curr_lens() const { return lenses[lens_ind]; }
   void mount_lens(int i);
 
   double focus_metric(const ImageBuffer& ib) const;
