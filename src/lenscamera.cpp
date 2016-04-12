@@ -350,7 +350,7 @@ Ray LensCamera::generate_ray(double x, double y) const {
     double sensor_depth = curr_lens().sensor_depth;
     Vector3D sensor_point(-(x-0.5)*film_w, -(y-0.5)*film_h, sensor_depth);
     Vector3D dir = (curr_lens().back_lens_sample() - sensor_point).unit();
-    Ray r = Ray(sensor_point,dir);
+    r = Ray(sensor_point,dir);
     vector<Vector3D> trace;
     trace.push_back(r.o);
     if (!curr_lens().trace(r, &trace)) {
