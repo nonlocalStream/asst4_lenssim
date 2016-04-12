@@ -422,8 +422,21 @@ double LensCamera::focus_metric(const ImageBuffer& ib) const {
 
   // Part 2 Task 1: Implement this. Design a metric to judge how "in-focus"
   // the image patch stored in the provided ImageBuffer is.
-
-  return mean_green(ib); //  A meaningless standin
+  Vector3D sum(0,0,0);
+  Vector3D var(0,0,0);
+  for (int i = 0; i < ib.w * ib.h; ++i) {
+      sum.x += red_channel(ib.data[i]);
+      sum.y += green_channel(ib.data[i]);
+      sum.z += blue_channel(ib.data[i]);
+  }
+  Vector3D mean = sum / (ib.w * ib.h);
+  for (int i = 0; i < ib.w * ib.h; ++i) {
+      var.x += pow(red_channel(ib.data[i])-mean.x,2);
+      var.y += pow(green_channel(ib.data[i])-mean.y,2);
+      var.z += pow(blue_channel(ib.data[i])-mean.z,2);
+  }
+  var = var / (ib.w * ib.h);
+  return (var.x+var.y+var.z)/3;
 }
 
 
