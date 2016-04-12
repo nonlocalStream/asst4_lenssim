@@ -455,12 +455,33 @@ void LensCamera::autofocus() {
   // Example code. Nothing to do with your actual implementation except to 
   // demonstrate functionality.
   ImageBuffer ib;
-  curr_lens().sensor_depth += 1;
-  pt->raytrace_cell(ib);
-  cout << "[LensCamera] The mean green is " << focus_metric(ib) << endl;
 
-
-  
+  //cout << "[LensCamera] The mean green is " << focus_metric(ib) << endl;
+  double sensor_pixel_size = sqrt(36*36 + 24*24) / sqrt(screenW*screenW + screenH*screenH);
+  double zi_over_A = 2;
+  double step = sensor_pixel_size * zi_over_A;
+  cout << "[LensCamera] step:" << step << endl;
+  double infinity_focus = curr_lens().infinity_focus;
+  cout << "[LensCamera] inf:" << infinity_focus << endl;
+  double near_focus = curr_lens().near_focus;
+  cout << "[LensCamera] near:" << near_focus << endl;
+  double d = infinity_focus;
+  double max_var = -1;
+  double best_d = 1;
+  double metric;
+  while (d <= near_focus) {
+    curr_lens().sensor_depth = d;
+    pt->raytrace_cell(ib);
+    metric = focus_metric(ib); 
+    cout << "[LensCamera] d:" << best_d << "; metric" << metric << endl;
+    if (metric > max_var) {
+        max_var = metric;
+        best_d = d;
+    }
+    d += step;
+  }
+  curr_lens().sensor_depth = best_d;
+  cout << "[LensCamera] best d:" << best_d << endl;
 }
 
 
