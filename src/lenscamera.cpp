@@ -489,17 +489,20 @@ void LensCamera::autofocus() {
   double max_var = -1;
   double best_d = 1;
   double metric;
-  while (d <= near_focus) {
+  cout << "DeliveraBLE: d ; metric" << endl;
+  cout << "d_m = [";
+    while (d <= near_focus) {
     curr_lens().sensor_depth = d;
     pt->raytrace_cell(ib);
     metric = focus_metric(ib); 
-    cout << "[LensCamera] d:" << best_d << "; metric" << metric << endl;
+    cout << "[" << d << "," << metric << "],";
     if (metric > max_var) {
         max_var = metric;
         best_d = d;
     }
     d += step;
   }
+  cout << "]" << endl;
   curr_lens().sensor_depth = best_d;
   cout << "[LensCamera] best d:" << best_d << endl;
 }

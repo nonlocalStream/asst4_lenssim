@@ -21,7 +21,7 @@
     <div class="padded">
         <p>This project extends the pin-hole pathtracer by adding a lens between the sensor plane and the world. Part 1 implements ray tracing through the lenses, which gives some realistic camera effects such as depth of field. Part 2 implements autofocusing by evaluating how in focus a selected patch of image is on diffent sensor depths.</p>
 
-    <h2 align="middle">Part 1: Ray Generation and Intersection</h2>\
+    <h2 align="middle">Part 1: Ray Generation and Intersection</h2>
         In this part, I first implemented tracing through lenses using the vector form of Shell's law:
         <p align="middle"><pre align="middle">a^2 + b^2 = c^2</pre></p>
         
@@ -109,13 +109,65 @@
                 </table>
         </div>
 
+        <h3>The inverse relationship between sensor depth and its world-side conjugate</h3>
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/p1/plot/p1_sensor_world.png" width="480px" />
+                    <figcaption align="middle"></figcaption>
+                    <td align="middle">
+                    <img src="images/p1/plot/p1_world_sensor.png" width="480px" />
+                    <figcaption align="middle"></figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/p1/plot/p2_sensor_world.png" width="480px" />
+                    <figcaption align="middle"></figcaption>
+                    <td align="middle">
+                    <img src="images/p1/plot/p2_world_sensor.png" width="480px" />
+                    <figcaption align="middle"></figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/p1/plot/p3_sensor_world.png" width="480px" />
+                    <figcaption align="middle"></figcaption>
+                    <td align="middle">
+                    <img src="images/p1/plot/p3_world_sensor.png" width="480px" />
+                    <figcaption align="middle"></figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/p1/plot/p4_sensor_world.png" width="480px" />
+                    <figcaption align="middle"></figcaption>
+                    <td align="middle">
+                    <img src="images/p1/plot/p4_world_sensor.png" width="480px" />
+                    <figcaption align="middle"></figcaption>
+                </tr>
+                
+            </table>
+        </div>
 
+        <h3>Result</h3>
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/p1/lens/p1.png" width="480px" />
+                    <figcaption align="middle">CBlucy with 1024spp, 1spl and 100 bounce</figcaption>
+                </tr>
+            </table>
+        </div>
+        
         <p>Here is an example of how to include a simple formula:</p>
         <p align="middle"><pre align="middle">a^2 + b^2 = c^2</pre></p>
         <p>or, alternatively, you can include an SVG image of a LaTex formula.</p>
         <p>This time it's your job to copy-paste in the rest of the sections :)</p>
 
 
+    <h2 align="middle">Part 2: Contrast-based autofocus</h2>
+        In this part, I first implemented tracing through lenses using the vector form of Shell's law:
+      
 
     <h2 align="middle">A Few Notes On Webpages</h2>
         <p>Here are a few problems students have encountered in the past. You will probably encounter these problems at some point, so don't wait until right before the deadline to check that everything is working. Test your website on the instructional machines early!</p>
