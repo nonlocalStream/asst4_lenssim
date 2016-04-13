@@ -257,15 +257,15 @@ void Lens::set_focus_params() {
 
   cout << "Deliverable, sensor_depth, object_depth:" << endl;
   double step = (near_focus - infinity_focus)/100.0;
-  cout << "x <- c(";
+  cout << "sensor = [";
   for (double d = near_focus; d >= infinity_focus; d -= step) {
     cout << d << ",";
   }
-  cout << endl << "y <- c(";
+  cout << "]" << endl << "obj = [";
   for (double d = near_focus; d >= infinity_focus; d -= step) {
     cout << -focus_depth(d) << ",";
   }
-  cout << "End Deliverable:" << endl;
+  cout << "]" << endl << "End Deliverable:" << endl;
 }
 
 
