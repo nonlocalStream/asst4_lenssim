@@ -19,16 +19,32 @@
     <h2 align="middle">Chuqian</h2>
 
     <div class="padded">
-        <p>This project extends the pin-hole pathtracer by adding a lens between the sensor plane and the world. Part 1 implements ray tracing through the lenses, which gives some realistic camera effects such as depth of field. Part 2 implements autofocusing by evaluating how in focus a selected patch of image is on diffent sensor depths.</p>
+        <p>This project extends the pinhole pathtracer by adding a lens between the sensor plane and the world. Part 1 implements ray tracing through the lenses, which gives some realistic camera effects such as depth of field. Part 2 implements autofocusing by evaluating how in focus a selected patch of image is on diffent sensor depths.</p>
 
     <h2 align="middle">Part 1: Ray Generation and Intersection</h2>
-        In this part, I first implemented tracing through lenses using the vector form of Shell's law:
-        <p align="middle"><pre align="middle">a^2 + b^2 = c^2</pre></p>
+        <h3> Implementation </h3>
+        <p>Refract a ray using Shell's law (http://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf):</p>
+        <p align="middle"><pre align="middle"><img src="images/p1/fm1.png"></pre></p>
+        <p align="middle"><pre align="middle"><img src="images/p1/fm2.png"></pre></p>
+    
+        <p>Calculate n as follows and flip n if r.d.z * radius < 0</p>
+        <p align="middle"><pre align="middle"> n = (hit_p-Vector3D(0,0,center)).unit()</pre></p>
+
+        <p>In trace_backwards, instead of using prev_ior, the next len's ior is passed in and flipped in refract function.</p>
+
+        Calculate infinity_focus, near_focus, focal_length and focus_depth as following (epsilon = aperture/150):
+        <p align="middle"><pre align="middle"> infinity_focus: trace a ray that starts from (epsilon,0,front_lens_z-10) and travel in (0,0,1) direction. Find its intersection F' with z axis after trace_backwards.</pre></p>
+        <p align="middle"><pre align="middle"> focal_length: Find the imaginary intersection P' of the above ray before and after pass through the lengths. Focal length = |P'.z - F'.z| </pre></p>
+        <p align="middle"><pre align="middle"> near_focus: appoximate the closest object's distance as front_lens_z - (1 + log(focal_length))*focal_length.
+         Trace a ray that shoots from (0,0,closest_object_distance) to (epsilon,0,front_lens_z), trace_backwards and find intersection with z axis.</pre></p>
+         <p align="middle"><pre align="middle"> focus_depth(d): Shoot a ray from (0,0,d) to (epsilon,0,back_lens_z), trace and find intersection with z axis.</pre></p>
+         <p>back_lens_sample is implemented by rejection sampling.</p>
+        <p>generate_ray is implemented by shooting a ray from sensor point to the random sample on back_lens. If this ray doesn't pass the lenses successfully, return a ray that starts from sensor and shoot away from the lens.</p>
         
         <h3> Difference between pinhole camera and a lens system. </h3>
         <p><b>Depth of field</b> In pinhole camera, every point is in foucs. In lens model, things may go out of focus and become blur. This depth of field changes according aperture size, focal length and the distance of object  in the lens model.</p>
         <p> <b>Perspective effect</b>: In pinhole camera, there's no persepctive effect. In lens model, when wide-anlge and fisheye lens are used, there're distortions at peripheral caused by perspective effect.</p>
-        <p> <b>Visual field</b>: In pinhole camera, the visual field only depends on the sensor size and sensor depth. In lens camera, the visual field may be wider of narrower depending on which type of lens you are using. (Wide-angle's visual field is wider and telephoto narrower)</p>
+        <p> <b>Field of view</b>: In pinhole camera, the field of view only depends on the sensor size and sensor depth. In lens camera, the field of view may be wider of narrower depending on which type of lens you are using. (Wide-angle's field of view is wider and telephoto narrower)</p>
 
 
         <h3> Conjugate points on 4 lenses</h3>
@@ -37,33 +53,31 @@
                 <tr>
                     <td align="middle">
                     <img src="images/p1/lens/p1.png" width="480px" />
-                    <figcaption align="middle"></figcaption>
+                    <figcaption align="middle">D-GAUSS</figcaption>
                 </tr>
                 <tr>
                     <td align="middle">
                     <img src="images/p1/lens/p2.png" width="480px" />
-                    <figcaption align="middle"></figcaption>
+                    <figcaption align="middle">Wide-angle</figcaption>
                 </tr>
                 <tr>
                     <td align="middle">
                     <img src="images/p1/lens/p3_1.png" width="480px" />
-                    <figcaption align="middle"></figcaption>
+                    <figcaption align="middle">SIGLER: zoomed in</figcaption>
                     <td align="middle">
                     <img src="images/p1/lens/p3_2.png" width="480px" />
-                    <figcaption align="middle"></figcaption>
+                    <figcaption align="middle">SIGLER: zoomed out</figcaption>
  
                </tr>
                 <tr>
                     <td align="middle">
                     <img src="images/p1/lens/p4.png" width="480px" />
-                    <figcaption align="middle"></figcaption>
+                    <figcaption align="middle">Muller</figcaption>
                 </tr>
             </table>
         </div>
 
         <h3>The parameters of the four lenses</h3>
-        <p>I used raytracing to calculate the focal length, infinity focus sensor depth, close focus distance in front of the lens and close focus sensor depth.</p>
-        <p align="middle"><pre align="middle">a^2 + b^2 = c^2</pre></p>
         <div align="center">
             <table style="width=100" border= "1px solid black" align="middle">
                 <tr>
@@ -110,6 +124,7 @@
         </div>
 
         <h3>The inverse relationship between sensor depth and its world-side conjugate</h3>
+        In the following plots, several outliers where the world-side conjugate is extremely large is not shown for the sake of plotting.
         <div align="center">
             <table style="width=100%">
                 <tr>
@@ -153,32 +168,91 @@
             <table style="width=100%">
                 <tr>
                     <td align="middle">
-                    <img src="images/p1/lens/p1.png" width="480px" />
+                    <img src="images/p1/lucy_high.png" width="480px" />
                     <figcaption align="middle">CBlucy with 1024spp, 1spl and 100 bounce</figcaption>
+
                 </tr>
+
+            </table>
+        </div>
+        In this photo, the face and the top of the wing is in focus whild the hands and body are blurred. Because it's a standard 50mm lens, the perspective effect is not very dramatic. But we can see that the face in center is enlarged a little bit.
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/p1/lucy_high_2.png" width="480px" />
+                    <figcaption align="middle"></figcaption>
+
+                </tr>
+
             </table>
         </div>
         
-        <p>Here is an example of how to include a simple formula:</p>
+       <!--  <p>Here is an example of how to include a simple formula:</p>
         <p align="middle"><pre align="middle">a^2 + b^2 = c^2</pre></p>
         <p>or, alternatively, you can include an SVG image of a LaTex formula.</p>
         <p>This time it's your job to copy-paste in the rest of the sections :)</p>
-
+ -->
 
     <h2 align="middle">Part 2: Contrast-based autofocus</h2>
-        In this part, I first implemented tracing through lenses using the vector form of Shell's law:
-      
+        In this part, a small patch of image (cell) is seleted to focus on. A focus metric that evaluate how focused is used and the sensor plane is moved to where the metric achieve the optimal value.
+    <h3>Focus metric</h3>
+        <p>I use the variance of cell pixels for focus metric:</p>
+        <p align="middle"><pre align="middle">var = sum((X_i - mean(X))^2)/n</pre></p>
+        <p>where X_i are the intensity of the pixels and n is the total number of pixels.</p>
+        <p>Since there are 3 color channels, we take the average:</p>
+        <p align="middle"><pre align="middle">metric = (var_R+var_G+var_B)/3</pre></p>
+        <p>When the cell goes out of focus and gets blurred, pixels appear more alike each other. Thus the variance is low. Higher contrast means more difference and thus leads to higher variance. So the higher the metric, the more focused the cell is.</p>
+    <h3>Autofocus heuristic</h3>
+        <p>I enumerate every sensor depth from infinity focus depth to close focus depth with a small step size to find the one that has the highest focus metric. The step size is calculated as below:</p> 
+        <p align="middle"><pre align="middle"><img src="images/p2/fm1.png"></pre></p>
+        We get:
+        <p align="middle"><pre align="middle">d'=C*(zi/A)</pre></p>
+        We want C to be 1 screen pixel to see how much d' need to change to make screen pixels to have a noticeable difference. Thus:
+        <p align="middle"><pre align="middle">C(in millimeter)=sqrt(36*36 + 24*24)/ sqrt(screenW*screenW + screenH*screenH)</pre></p>
+        zi/A is the defination of f-number. From the lens specs, most lenses are f-2. Lens#3 is f-5 and Lens#4 is f-4.
+    <h3>Plotting the focus metric</h3>
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/p2/plot/l1.png" width="480px" />
+                    <figcaption align="middle">D-GAUSS on CBdragon</figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/p2/plot/l3.png" width="480px" />
+                    <figcaption align="middle">SIGLER(telephoto) on CBdragon</figcaption>
+                </tr>
+            </table>
+        </div>
+    <h3>Results</h3>
+        <p>From below, we can see that autofocus doesn't work so well with telephoto. One reason might be that the object is very far from telephoto lens so the pathtracer gives very noisy results, even only rendering a small cell. The noise affects metric's prediction of contrast level. </p>
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/p2/dragon_high_1.png" width="480px" />
+                    <figcaption align="middle">D-GAUSS, focused on dragon's mouth</figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/p2/dragon_high_2.png" width="480px" />
+                    <figcaption align="middle">Wide-angle, focused on dragon's mouth</figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/p2/dragon_high_6.png" width="480px" />
+                    <figcaption align="middle">Telephoto, focused on head</figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/p2/dragon_high_4.png" width="480px" />
+                    <figcaption align="middle">Fisheye, focused on neck</figcaption>
+                </tr>
+            </table>
+        </div>
 
-    <h2 align="middle">A Few Notes On Webpages</h2>
-        <p>Here are a few problems students have encountered in the past. You will probably encounter these problems at some point, so don't wait until right before the deadline to check that everything is working. Test your website on the instructional machines early!</p>
-        <ul>
-        <li>Your main report page should be called index.html.</li>
-        <li>Be sure to include and turn in all of the other files (such as images) that are linked in your report!</li>
-        <li>Use only <em>relative</em> paths to files, such as <pre>"./images/image.jpg"</pre>
-        Do <em>NOT</em> use absolute paths, such as <pre>"/Users/student/Desktop/image.jpg"</pre></li>
-        <li>Pay close attention to your filename extensions. Remember that on UNIX systems (such as the instructional machines), capitalization matters. <pre>.png != .jpeg != .jpg != .JPG</pre>
-        <li>Be sure to adjust the permissions on your files so that they are world readable. For more information on this please see this tutorial: <a href="http://www.grymoire.com/Unix/Permissions.html">http://www.grymoire.com/Unix/Permissions.html</a></li>
-        <li>And again, test your website on the instructional machines early!</li>
 </div>
 </body>
 </html>
