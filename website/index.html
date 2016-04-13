@@ -9,31 +9,107 @@
       padding-left: 100px;  
     }  
   </style> 
-<title>Your Name  |  CS 184</title>
+<title>Chuqian  |  CS 184</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
 </head>
 <body>
 <br />
 <h1 align="middle">Assignment 4: Len Simulator</h1>
-    <h2 align="middle">Your Name</h2>
+    <h2 align="middle">Chuqian</h2>
 
     <div class="padded">
-        <p>Use this section to write an overview of the assignment. All of the text in your write-up should be <em>in your own words</em>. If you need to add additional HTML features to this document, you can search the <a href="http://www.w3schools.com/">http://www.w3schools.com/</a> website for instructions. To edit the HTML, you can just copy and paste existing chunks and fill in the text and image file names appropriately.</p>
-        <o>The website writeup is intended to be a self-contained walkthrough of the assignment: we want this to be a piece of work which showcases your understanding of relevant concepts through both mesh images as well as written explanations about what you did to complete each part of the assignment. Try to be as clear and organized as possible when writing about your own output files or extensions to the assignment. We want to understand what you've achieved and how you've done it!</p> 
-        <p>If you are well-versed in web development, feel free to ditch this template and make a better looking page. Just make sure that you include all the components as we've laid them out here. </p>
+        <p>This project extends the pin-hole pathtracer by adding a lens between the sensor plane and the world. Part 1 implements ray tracing through the lenses, which gives some realistic camera effects such as depth of field. Part 2 implements autofocusing by evaluating how in focus a selected patch of image is on diffent sensor depths.</p>
 
-    <h2 align="middle">Part 1: Ray Generation and Intersection</h2>
-        <p>Describe what you did in Part 1. etc...</p>
+    <h2 align="middle">Part 1: Ray Generation and Intersection</h2>\
+        In this part, I first implemented tracing through lenses using the vector form of Shell's law:
+        <p align="middle"><pre align="middle">a^2 + b^2 = c^2</pre></p>
+        
+        <h3> Difference between pinhole camera and a lens system. </h3>
+        <p><b>Depth of field</b> In pinhole camera, every point is in foucs. In lens model, things may go out of focus and become blur. This depth of field changes according aperture size, focal length and the distance of object  in the lens model.</p>
+        <p> <b>Perspective effect</b>: In pinhole camera, there's no persepctive effect. In lens model, when wide-anlge and fisheye lens are used, there're distortions at peripheral caused by perspective effect.</p>
+        <p> <b>Visual field</b>: In pinhole camera, the visual field only depends on the sensor size and sensor depth. In lens camera, the visual field may be wider of narrower depending on which type of lens you are using. (Wide-angle's visual field is wider and telephoto narrower)</p>
+
+
+        <h3> Conjugate points on 4 lenses</h3>
         <div align="center">
             <table style="width=100%">
                 <tr>
                     <td align="middle">
-                    <img src="images/example_image.png" width="480px" />
-                    <figcaption align="middle">Results Caption: my bunny is the bounciest bunny</figcaption>
+                    <img src="images/p1/lens/p1.png" width="480px" />
+                    <figcaption align="middle"></figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/p1/lens/p2.png" width="480px" />
+                    <figcaption align="middle"></figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/p1/lens/p3_1.png" width="480px" />
+                    <figcaption align="middle"></figcaption>
+                    <td align="middle">
+                    <img src="images/p1/lens/p3_2.png" width="480px" />
+                    <figcaption align="middle"></figcaption>
+ 
+               </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/p1/lens/p4.png" width="480px" />
+                    <figcaption align="middle"></figcaption>
                 </tr>
             </table>
         </div>
+
+        <h3>The parameters of the four lenses</h3>
+        <p>I used raytracing to calculate the focal length, infinity focus sensor depth, close focus distance in front of the lens and close focus sensor depth.</p>
+        <p align="middle"><pre align="middle">a^2 + b^2 = c^2</pre></p>
+        <div align="center">
+            <table style="width=100" border= "1px solid black" align="middle">
+                <tr>
+                    <td>Lens</td>
+                    <td>focal length(mm)</td>
+                    <td>infinity depth(mm)</td>
+                    <td>close object distance(mm)</td>
+                    <td>close sensor depth(mm)</td>
+                    <td>lens info</td>
+                </tr>
+                <tr>
+                    <td>#1</td>
+                    <td>50.3581</td>
+                    <td>51.2609</td>
+                    <td>264.605</td>
+                    <td>62.7566</td>
+                    <td>D-GAUSS F/2 22deg HFOV</td>
+                </tr>
+                <tr>
+                    <td>#2</td>
+                    <td>22.0234</td>
+                    <td>28.7634</td>
+                    <td>109.048</td>
+                    <td>34.5796</td>
+                    <td>Wide-angle (38-degree) lens. Nakamura.</td>
+                </tr>
+                <tr>
+                    <td>#3</td>
+                    <td>249.566</td>
+                    <td>188.758</td>
+                    <td>1646.2</td>
+                    <td>236.875</td>
+                    <td>SIGLER Super achromate telephoto, EFL=254mm, F/5</td>
+                </tr>
+                <tr>
+                    <td>#4</td>
+                    <td>9.99116</td>
+                    <td>28.7436</td>
+                    <td>60.8501</td>
+                    <td>31.1804</td>
+                    <td>Muller 16mm/f4 155.9FOV fisheye lens</td>
+                </tr>
+                </table>
+        </div>
+
+
         <p>Here is an example of how to include a simple formula:</p>
         <p align="middle"><pre align="middle">a^2 + b^2 = c^2</pre></p>
         <p>or, alternatively, you can include an SVG image of a LaTex formula.</p>

@@ -37,14 +37,14 @@ static const double scale = .001;
 
 bool LensElement::pass_through(Ray &r, double &prev_ior) const {
   // Part 1 Task 1: Implement this. It takes r and passes it through this lens element.
-  Vector3D *hit_p = new Vector3D;
-  if (intersect(r, hit_p)) {
-    if (pow(hit_p->x,2)+pow(hit_p->y,2)<=pow(aperture/2.0,2)) {
+  Vector3D hit_p = Vector3D(0,0,0);
+  if (intersect(r, &hit_p)) {
+    if (pow(hit_p.x,2)+pow(hit_p.y,2)<=pow(aperture/2.0,2)) {
       if (radius == 0) {
         prev_ior = ior;
         return true;
       } 
-      if (refract(r, *hit_p, prev_ior)) {
+      if (refract(r, hit_p, prev_ior)) {
         prev_ior = ior;
         return true;
       }
@@ -235,6 +235,7 @@ void Lens::set_focus_params() {
   /* ==== near_focus ========= */
   //Vector3D nearest_o = Vector3D(0,0,-5*focal_length);
   Vector3D nearest_o = Vector3D(0,0,elts.back().center - elts.back().radius - (1 + log(focal_length))*focal_length);
+  cout << "close object distance:" << elts.back().center - elts.back().radius - (1 + log(focal_length))*focal_length << endl;
   r = Ray(nearest_o, (Vector3D(epsilon, 0, front_lens_z)-nearest_o).unit());
   trace.clear();
   trace.push_back(r.o);
@@ -253,6 +254,18 @@ void Lens::set_focus_params() {
   cout << "[Lens] Infinity focus depth is " << infinity_focus << endl;
   cout << "[Lens] Close focus depth is " << near_focus << endl;
   cout << "[Lens] True focal length is " << focal_length << endl;
+
+  cout << "Deliverable, sensor_depth, object_depth:" << endl;
+  double step = (near_focus - infinity_focus)/100.0;
+  cout << "x <- c(";
+  for (double d = near_focus; d >= infinity_focus; d -= step) {
+    cout << d << ",";
+  }
+  cout << endl << "y <- c(";
+  for (double d = near_focus; d >= infinity_focus; d -= step) {
+    cout << -focus_depth(d) << ",";
+  }
+  cout << "End Deliverable:" << endl;
 }
 
 
@@ -383,6 +396,13 @@ void LensCamera::move_sensor(float delta) {
   curr_lens().sensor_depth += delta;
   cout << "[LensCamera] Sensor plane moved to " << curr_lens().sensor_depth
        << ", focus now at " << lenses[lens_ind].focus_depth(lenses[lens_ind].sensor_depth) << endl;
+  //double infinity_focus = curr_lens().infinity_focus;
+  //double near_focus = curr_lens().near_focus;
+  //double step = (near_focus - infinity_focus)/100.0;
+  //for (double d = near_focus; d >= infinity_focus; d -= step) {
+  //  cout << d << "," << lenses[lens_ind].focus_depth(d) << endl;
+  //}
+  //cout << "End Deliverable:" << endl;
 }
 
 void LensCamera::stop_down(float ratio) {
