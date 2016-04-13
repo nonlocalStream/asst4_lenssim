@@ -252,6 +252,30 @@
                 </tr>
             </table>
         </div>
+        <h2 align="middle">Part 3: extra credit</h2>
+        <p>I added the rays_tried and cosine factor to generate_ray and raytrace_pixel.</p>
+        <p>In generate ray, repeated generate new ray until it successfully pass through the lens. Return the ray along with the number of tries and cosine factor which equals to r.d.z.</p>
+        <p>In raytrace_pixel, </p>
+        <p>This is better than simply returning a ray that goes in direction (0,0,1) because it doesn't need to trace through the scene when no valid ray can be generated. This saves time for some areas where the light can't physically pass the lens.</p>
+        <p>In raytrace_pixel,</p>
+        <p>Use the sum of all rays_tried as the total number of samples. Multiply cosine^4 to the result of ray_trace.</p>
+        <p>The cos^4 factor takes into account how light is attenuated when it comes in slighted angle. This makes the scene more realistic and gives a softer blur at the edges.</p>
+
+        <h3>Results</h3>
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/p3/p1b.png" width="480px" />
+                    <figcaption align="middle"></figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/p3/p2b.png" width="480px" />
+                    <figcaption align="middle"></figcaption>
+                </tr>
+            </table>
+        </div>
 
 </div>
 </body>

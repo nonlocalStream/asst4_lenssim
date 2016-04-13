@@ -54,7 +54,7 @@ class LensCamera : public Camera {
 public:
   LensCamera();
 
-  Ray generate_ray(double x, double y) const;
+  Ray generate_ray(double x, double y, int& rays_tried, double& cosine) const;
 
   void move_sensor(float delta);
   void stop_down(float ratio);

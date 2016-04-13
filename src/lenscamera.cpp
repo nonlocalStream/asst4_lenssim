@@ -348,7 +348,7 @@ LensCamera::LensCamera(): pt(NULL) {
 }
 
 
-Ray LensCamera::generate_ray(double x, double y) const {
+Ray LensCamera::generate_ray(double x, double y, int& rays_tried, double& cosine) const {
 
   Ray r = Ray(Vector3D(),Vector3D() );
   if (lens_ind >= 0) {
@@ -366,10 +366,19 @@ Ray LensCamera::generate_ray(double x, double y) const {
     r = Ray(sensor_point,dir);
     vector<Vector3D> trace;
     trace.push_back(r.o);
-    if (!curr_lens().trace(r, &trace)) {
+    rays_tried = 1;
+    while ((!curr_lens().trace(r, &trace)) && (rays_tried <=10)) {
+      dir = (curr_lens().back_lens_sample() - sensor_point).unit();
+      r = Ray(sensor_point,dir);
+      cosine = r.d.z;
+      trace.empty();
+      rays_tried++;
+    }
+    if (rays_tried > 10) {
+      cosine = 0;
       return Ray(sensor_point,Vector3D(0,0,1));
     }
-
+    
     /***** end of your code ******/
 
 

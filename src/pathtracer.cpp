@@ -638,16 +638,22 @@ Spectrum PathTracer::raytrace_pixel(size_t x, size_t y) {
   // through the scene. Return the average Spectrum. 
 
   int num_samples = ns_aa; // total samples to evaluate
+  int actual_samples = 0;
   Vector2D origin = Vector2D(x,y); // bottom left corner of the pixel
 
   Spectrum s;
   for (int i = 0; i < num_samples; ++i) {
     Vector2D p = origin + (ns_aa>1?gridSampler->get_sample():Vector2D(.5,.5));
-    Ray r = camera->generate_ray(p.x/sampleBuffer.w, p.y/sampleBuffer.h);
+    int rays_tried;
+    double cosine;
+    Ray r = camera->generate_ray(p.x/sampleBuffer.w, p.y/sampleBuffer.h, rays_tried, cosine);
+    actual_samples += rays_tried;
     r.depth = max_ray_depth;
-    s += trace_ray(r,true);
+    if (cosine != 0) {
+      s += trace_ray(r,true)*pow(cosine, 4);
+    }
   }
-  return s * (1./ns_aa);
+  return s * (1./actual_samples);
 
 }
 
